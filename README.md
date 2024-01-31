@@ -89,7 +89,6 @@
 | ------ | ---------------------------------------------- |
 | 김민욱 | [@k-kmw](https://github.com/k-kmw) |
 | 서정운 | [@SlowCloud](https://github.com/SlowCloud) |
-| 조원빈 | [@mango152](https://github.com/mango152) |
 | 김세진 | [@hsusj996](https://github.com/hsusj996) |
 | 이강우 | [@dbdbais](https://github.com/dbdbais) |
 | 박지훈 | [@hyuntohoon](https://github.com/hyuntohoon) |
