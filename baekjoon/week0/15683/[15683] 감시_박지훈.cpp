@@ -15,15 +15,6 @@ int dx[4] = { 1,0,-1,0 };
 int dy[4] = { 0,1,0,-1 };
 int ans = 9876543210;
 
-void checkCctv(int x, int y, int dir) {
-	while (N > y && M > x && x >= 0 && y >= 0 && arr[y][x] != 6) {
-		arr[y][x] = 1;
-		x = x + dx[dir];
-		y = y + dy[dir];
-	}
-}
-
-
 void checkCctv2(int x, int y, int dir, int tempArr[][9]) {// 시작지점부터 dir 방향으로 직진
 	while (N > y && M > x && x >= 0 && y >= 0 && tempArr[y][x] != 6) {
 		tempArr[y][x] = 1;
@@ -41,9 +32,8 @@ void cctvRot() { // 방향 돌리고 실행
 		int x = V[i].second.second;
 		int y = V[i].second.first;
 		int nowDir = cctvDir[i];
-		if (cctv == 1) {
-			checkCctv2(x, y, nowDir, tempArr);
-		}
+		if (cctv == 1) checkCctv2(x, y, nowDir, tempArr);
+
 		if (cctv == 2) {
 			int nowDir2 = (nowDir + 2) % 4;
 			checkCctv2(x, y, nowDir, tempArr);
@@ -57,6 +47,16 @@ void cctvRot() { // 방향 돌리고 실행
 		if (cctv == 4) {
 			int nowDir2 = (nowDir + 2) % 4;
 			int nowDir3 = (nowDir + 3) % 4;
+			checkCctv2(x, y, nowDir, tempArr);
+			checkCctv2(x, y, nowDir2, tempArr);
+			checkCctv2(x, y, nowDir3, tempArr);
+		}
+		if (cctv == 5) {
+			int nowDir = 0;
+			int nowDir2 = (nowDir + 2) % 4;
+			int nowDir3 = (nowDir + 3) % 4;
+			int nowDir4 = (nowDir + 1) % 4;
+			checkCctv2(x, y, nowDir4, tempArr);
 			checkCctv2(x, y, nowDir, tempArr);
 			checkCctv2(x, y, nowDir2, tempArr);
 			checkCctv2(x, y, nowDir3, tempArr);
@@ -91,30 +91,15 @@ int main()
 		for (int j = 0; j < M; j++) {
 			int temp;
 			cin >> temp;
-			if (temp != 0 && temp != 6 && temp != 5) {
+			if (temp != 0 && temp != 6) {
 				cctvNum++;
 				V.push_back(make_pair(temp,make_pair(i, j)));
 				continue;
 			}
-			if (temp == 5) arr[i][j] = 5; // 5번은 따로 처리함 왜냐하면 회전의 의미가 없기 때문에
-			else arr[i][j] = temp;
+			arr[i][j] = temp;
 		}
 	}
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) {// 5번은 따로 처리함 배열에 추가하고, 이 배열을 복사하여 사용
-			if (arr[i][j] == 5) {
-				int nowDir = 0;
-				int nowDir2 = (nowDir + 2) % 4;
-				int nowDir3 = (nowDir + 3) % 4;
-				int nowDir4 = (nowDir + 1) % 4;
-				checkCctv(j, i, nowDir);
-				checkCctv(j, i, nowDir2);
-				checkCctv(j, i, nowDir3);
-				checkCctv(j, i, nowDir4);
-			}
-		}
-	}
-
+	
 	go(0);
 
 	cout << ans << endl;
