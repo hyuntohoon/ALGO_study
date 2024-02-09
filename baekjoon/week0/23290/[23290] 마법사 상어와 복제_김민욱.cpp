@@ -1,11 +1,11 @@
 #include <bits/stdc++.h>
 using namespace std;
-vector<int> board[5][5];
-vector<int> board_copy[5][5];
-int dx[] = { 0, -1, -1, 0, 1, 1, 1, 0, -1 };
-int dy[] = { 0, 0, -1,-1, -1, 0, 1, 1, 1 };
-int dy2[] = {0, -1, 0, 1, 0};
-int dx2[] = {0, 0, -1, 0, 1};
+vector<pair<int, bool>> board[5][5];
+vector<pair<int, bool>> board_copy[5][5];
+int dy[] = { 0, -1, -1, 0, 1, 1, 1, 0, -1 };
+int dx[] = { 0, 0, -1,-1, -1, 0, 1, 1, 1 };
+int dy2[] = {0, 0, -1, 0, 1};
+int dx2[] = {0, -1, 0, 1, 0};
 bool sm[5][5][101];
 bool vis[5][5];
 int m, s, sx, sy;
@@ -14,23 +14,35 @@ vector<pair<pair<int, int>, int>> tmp;
 int sum;
 int mx;
 
-bool isValid(int x, int y, int dir, int cnt) {
+bool isValid(int x, int y, int n, int dir, int cnt) {
+    if (!board[x][y][n].second)  return false;
     int nx = x + dx[dir];
     int ny = y + dy[dir];
     if (ny < 1 || ny > 4 || nx < 1 || nx > 4)    return false;
-    if (sm[nx][ny][cnt]) return false;
+    if (cnt >= 1) {
+        if (sm[nx][ny][cnt-1]) return false;
+    }
+    if (cnt >= 2) {
+        if (sm[nx][ny][cnt - 2])   return false;
+    }
+    if (nx == sx && ny == sy)   return false;
     return true;
 }
 
-void move(int i, int j, int n, int dir) {
+void move1(int i, int j, int n, int dir) {
     board[i][j].erase(board[i][j].begin()+n, board[i][j].begin()+n+1);
     int nx = i + dx[dir];
     int ny = j + dy[dir];
-    board[nx][ny].push_back(dir);
+    board[nx][ny].push_back({dir, false});
 }
 
 void dfs(int k, int x, int y) {
     if(k == 3) {
+        if(best.empty()) {
+            for (const auto &item: tmp) {
+                best.push_back(item);
+            }
+        }
         if(mx == sum) {
             if (!best.empty()) {
                 int t = 0;
@@ -93,13 +105,15 @@ int main() {
     for (int i = 0; i < m; i++) {
         int x, y, d;
         cin >> x >> y >> d;
-        board[x][y].push_back(d);
+        board[x][y].push_back({d, true});
     }
     cin >> sx >> sy;
     for (int i = 0; i < s; i++) {
+        mx = 0;
         // 이동 시키기 전 물고기의 상태를 저장
         for (int k = 1; k <= 4; k++) {
             for (int l = 1; l <= 4; l++) {
+                board_copy[k][l].clear();
                 for (int n = 0; n < board[k][l].size(); n++) {
                     board_copy[k][l].push_back(board[k][l][n]);
                 }
@@ -111,26 +125,38 @@ int main() {
             for (int l = 1; l <= 4; l++) {
                 for (int n = 0; n < board[k][l].size(); n++) {
                     for (int dir = 0; dir < 8; dir++) {
-                        int direction = (board[k][l][n] + dir) % 8;
-                        if (isValid(k, l, direction, i)) {
-                            move(k, l, n, direction);
+                        int direction = (board[k][l][n].first - dir + 8) % 8;
+                        if (direction == 0)  direction = 8;
+                        if (isValid(k, l, n, direction, i)) {
+                            move1(k, l, n, direction);
+                            n--;
                             break;
                         }
                     }
                 }
             }
         }
+        for (int k = 1; k <= 4; k++) {
+            for (int l = 1; l <= 4; l++) {
+                for (int n = 0; n < board[k][l].size(); n++) {
+                    board[k][l][n].second = true;
+                }
+            }
+        }
 
         // 상어 3칸 이동시키고, 이동경로의 물고기 제거
+        vis[sx][sy] = true;
         dfs(0, sx, sy);
+        vis[sx][sy] = false;
         for(int j=0; j<3; j++) {
-            cout << sx << sy << '\n';
             sx += dx2[best[j].second];
             sy += dy2[best[j].second];
-//            if(!board[sx][sy].empty()) {
-//                sm[sx][sy][i] = true;
-//                board[sx][sy].clear();
-//            }
+            if (sx >= 1 && sx <= 4 && sy >= 1 && sy <= 4) {
+                if (!board[sx][sy].empty()) {
+                    sm[sx][sy][i] = true;
+                    board[sx][sy].clear();
+                }
+            }
         }
 
         // 이동 시키기 전 상태의 물고기를 복제한다.
@@ -153,11 +179,7 @@ int main() {
     int ans = 0;
     for(int i=1; i<=4; i++) {
         for(int j=1; j<=4; j++) {
-            cout << i << ' ' << j << ": ";
-            for(int n=0; n<board[i][j].size(); n++) {
-                cout << board[i][j][n] << ' ';
-            }
-            cout << '\n';
+            cout << "i, j: " << i << j << " board[i][j]: " << board[i][j].size() << '\n';
             ans += board[i][j].size();
         }
     }
