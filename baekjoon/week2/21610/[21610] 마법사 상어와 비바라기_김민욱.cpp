@@ -32,6 +32,7 @@ int main() {
         int d, s;
         cin >> d >> s;
         for (int i=0; i<clouds.size(); i++) {
+            s %= n;
             int ny = (clouds[i].first + s*dy[d-1] + n) % n;
             int nx = (clouds[i].second + s*dx[d-1] + n) % n;
             if (ny == 0)	ny = n;
